@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="RecallImage">
+    <file>Resources/GenRecall.png</file>
+    <file>Resources/Load3d.png</file>
+    <file>Resources/loadRecall.png</file>
+    <file>Resources/super.png</file>
+    <file>Resources/cut.png</file>
+    <file>Resources/Load.png</file>
+  </qresource>
+</RCC>

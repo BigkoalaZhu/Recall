@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RecallImageClass</class>
+ <widget class="QMainWindow" name="RecallImageClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1503</width>
+    <height>855</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>RecallImage</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="imageshow" name="InputImage" native="true">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="imageshow" name="MatchingDisplay" native="true"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Operation parameters</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Canny threshold</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="CannyThreshold">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>SuperPixel Number</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="SuperNum">
+           <property name="text">
+            <string>600</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>SuperPixel Compact</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="SuperCompact">
+           <property name="text">
+            <string>30</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1503</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_image"/>
+    <addaction name="actionLoad_3D_shape"/>
+    <addaction name="actionLoad_recalls"/>
+   </widget>
+   <widget class="QMenu" name="menuOperation">
+    <property name="title">
+     <string>Operation</string>
+    </property>
+    <addaction name="actionEdge_detection"/>
+    <addaction name="actionSLICSuperPixel"/>
+    <addaction name="actionGenerate_recalls"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuOperation"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionLoad_image"/>
+   <addaction name="actionSLICSuperPixel"/>
+   <addaction name="actionEdge_detection"/>
+   <addaction name="separator"/>
+   <addaction name="actionLoad_3D_shape"/>
+   <addaction name="actionLoad_recalls"/>
+   <addaction name="actionGenerate_recalls"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLoad_image">
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/Load.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Load image</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </action>
+  <action name="actionEdge_detection">
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/cut.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Edge detection</string>
+   </property>
+  </action>
+  <action name="actionSLICSuperPixel">
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/super.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>SLICSuperPixel</string>
+   </property>
+  </action>
+  <action name="actionLoad_3D_shape">
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/Load3d.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Load 3D shape</string>
+   </property>
+  </action>
+  <action name="actionLoad_recalls">
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/loadRecall.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Load recalls</string>
+   </property>
+  </action>
+  <action name="actionGenerate_recalls">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/RecallImage/Resources/GenRecall.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Generate recalls</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>imageshow</class>
+   <extends>QWidget</extends>
+   <header location="global">imageshow.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="recallimage.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionLoad_image</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>Loadimage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge_detection</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>EdgeDetect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CannyThreshold</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>CannyChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1386</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSLICSuperPixel</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>SLICSuperPixel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SuperNum</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>SLICSuperNum(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1394</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SuperCompact</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>SLICSuperCompact(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1394</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLoad_3D_shape</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>Load3dShape()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLoad_recalls</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>LoadRecalls()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionGenerate_recalls</sender>
+   <signal>triggered()</signal>
+   <receiver>RecallImageClass</receiver>
+   <slot>GenerateRecalls()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>Loadimage()</slot>
+  <slot>EdgeDetect()</slot>
+  <slot>CannyChanged(int)</slot>
+  <slot>SLICSuperPixel()</slot>
+  <slot>SLICSuperNum(QString)</slot>
+  <slot>SLICSuperCompact(QString)</slot>
+  <slot>Load3dShape()</slot>
+  <slot>LoadRecalls()</slot>
+  <slot>GenerateRecalls()</slot>
+ </slots>
+</ui>

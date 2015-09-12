@@ -309,6 +309,131 @@ void GenerateViewSpace::Generate(char* dir)
 	}
 }
 
+void GenerateViewSpace::GenerateSingleRecall(char* dir, int index)
+{
+	connected_edges.clear();
+	std::ifstream ifs(edges_path);
+	while (!ifs.eof())
+	{
+		char tmp;
+		int x,y;
+		ifs >> tmp >> x >> y;
+		connected_edges.push_back(std::pair<int,int>(x,y));
+		connected_edges.push_back(std::pair<int,int>(y,x));
+	}
+	ifs.close();
+
+	int i = index;
+
+	Eigen::MatrixXd tmp = Eigen::MatrixXd::Zero(Vertices.rows(), Vertices.cols());
+	Eigen::MatrixXd result = Eigen::MatrixXd::Zero(Vertices.rows(), Vertices.cols());
+	for (int j = 0; j < Vertices.rows(); j++)
+	{
+		Eigen::Vector3d vertex = Vertices.row(j);
+
+		tmp(j,0) = (vertex - camera_direction[i]*length).dot(camera_direction[i].cross(camera_up[i]));
+		tmp(j,1) = (vertex - camera_direction[i]*length).dot(camera_up[i]);
+		tmp(j,2) = (vertex - camera_direction[i]*length).dot(-camera_direction[i]);
+	}
+
+	Eigen::Vector3d boundaryMax, boundaryMin, boundaryL, boundaryC;
+	boundaryMax = tmp.colwise().maxCoeff();
+	boundaryMin = tmp.colwise().minCoeff();
+	boundaryL = boundaryMax - boundaryMin;
+	boundaryC = (boundaryMax + boundaryMin)/2;
+	double scale = 1.05*boundaryL.maxCoeff()/Width;
+	double offset_x = Width/2.0f - boundaryC[0]/scale;
+	double offset_y = Width/2.0f - boundaryC[1]/scale;
+
+	for (int j = 0; j < Vertices.rows(); j++)
+	{
+		result(j,0) = tmp(j,0)/scale + offset_x;
+		result(j,1) = Width - tmp(j,1)/scale - offset_y;
+		result(j,2) = -tmp(j,2)/scale;
+	}
+
+	Eigen::VectorXi valid = Eigen::VectorXi::Ones(FaceIndex.rows());
+
+	CvMat *depthMap = cvCreateMat(Width,Width,CV_32FC1);
+	CvMat *labelMap = cvCreateMat(Width,Width,CV_32FC1);
+	IplImage* image = cvCreateImage(cvGetSize(depthMap),8,3);
+
+	for(int j = 0; j < Width*Width; j++)
+	{
+		depthMap->data.fl[j] = std::numeric_limits<float>::infinity();
+		labelMap->data.fl[j] = -1;
+		image->imageData[3*j] = 255;
+		image->imageData[3*j+1] = 255;
+		image->imageData[3*j+2] = 255;
+	}
+
+	layout.clear();
+
+	for (int j = 0; j < FaceIndex.rows(); j++)
+	{
+		Eigen::Vector3d points[3];
+		Eigen::Vector3i c = colors[Labels(j)];
+		for (int k = 0; k < 3; k++)
+		{
+			points[k] = result.row(FaceIndex(j,k));
+		}
+		sweepTriangle(depthMap, labelMap, Labels(j), points, c, image);
+	}
+
+	char filename[256];
+	char idscname[256];
+	char partsname[256];
+	char idx[25];
+	_itoa_s(i, idx, 10);
+	strcpy_s(filename,dir);
+	strcat_s(filename, sizeof(filename)/sizeof(char),idx);
+	strcpy_s(partsname,filename);
+	strcpy_s(idscname,filename);
+	strcat_s(partsname,sizeof(partsname)/sizeof(char), "_p");
+	strcat_s(filename, sizeof(filename)/sizeof(char),".png");
+	strcat_s(idscname, sizeof(filename)/sizeof(char),".txt");
+
+	cvFloodFill(image, CvPoint(0,0), cvScalarAll(0),cvScalarAll(0),cvScalarAll(0),NULL,8,NULL);
+
+	cvSaveImage(filename, image);
+
+	///////////////////////////////////////////////
+	QString sFilePath = QString::fromUtf8(idscname);
+	QFile file(sFilePath);  
+
+	if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {    
+		return;    
+	}
+	QTextStream out(&file);
+	cv::Mat mat_c = cv::cvarrToMat(image);
+	cvtColor(mat_c, mat_c, CV_BGR2GRAY);
+	cv::threshold(mat_c,mat_c,5,255,THRESH_BINARY);
+//	imwrite("test.jpg",mat_c);
+
+	int pt_num = 300;
+	double *descriptor = new double[pt_num*64];
+	IDSC_descriptor idsc;
+	idsc.getShapeContext(descriptor, mat_c, pt_num);
+
+	for (int i = 0; i < pt_num; i++)
+	{
+		for (int j = 0; j < 64; j++)
+		{
+			out << descriptor[i*64 + j] << " ";
+		}
+		out << endl;
+	}
+	//		out.flush();    
+	file.close();
+	///////////////////////////////////////////////
+
+	DrawParts(result, partsname);
+
+	cvReleaseMat(&labelMap);
+	cvReleaseMat(&depthMap);
+	cvReleaseImage(&image);
+}
+
 void GenerateViewSpace::DrawParts(Eigen::MatrixXd position, char * path)
 {
 	std::vector<Mat> parts;

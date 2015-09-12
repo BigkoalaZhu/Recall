@@ -173,6 +173,40 @@ void PoseModels::randomPose()
 	igl::dqs(V,W,vQ,vT,U);
 }
 
+void PoseModels::GenerateSpecificRecall(std::vector<double> angles, std::vector<Eigen::Vector3d> directions, int view_index, const char * dir)
+{
+	//Generate Pose
+	using namespace Eigen;
+	using namespace std;
+	RotationList pose = RotationList(rest_pose.size(),Quaterniond::Identity());
+
+	for (int i = 0; i < angles.size(); i++)
+	{
+		const Quaterniond bend(AngleAxisd(angles[i],directions[i]));
+		pose[i] = rest_pose[i]*bend*rest_pose[i].conjugate();
+	}
+
+	RotationList vQ;
+	vector<Vector3d> vT;
+	igl::forward_kinematics(C,BE,P,pose,vQ,vT);
+	const int dim = C.cols();
+	MatrixXd T(BE.rows()*(dim+1),dim);
+	for(int e = 0;e<BE.rows();e++)
+	{
+		Affine3d a = Affine3d::Identity();
+		a.translate(vT[e]);
+		a.rotate(vQ[e]);
+		T.block(e*(dim+1),0,dim+1,dim) =
+			a.matrix().transpose().block(0,0,dim+1,dim);
+	}
+	igl::dqs(V,W,vQ,vT,U);
+
+	GenerateViewSpace viewer(U, F, F_label, 512,filename);
+	char gd[1024];
+	strcpy(gd, dir);
+	viewer.GenerateSingleRecall(gd, view_index);
+}
+
 bool PoseModels::Applydeformation(Eigen::MatrixXd BC, Eigen::MatrixXd initial)
 {
 	U = initial;

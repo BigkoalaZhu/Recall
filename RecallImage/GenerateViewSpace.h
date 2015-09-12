@@ -18,6 +18,8 @@ public:
 	void Generate(char* dir); // Generate recall images from all views in this pose
 	void DrawParts(Eigen::MatrixXd position, char * path); // Generate parts info
 
+	void GenerateSingleRecall(char* dir, int index);
+
 private:
 	Eigen::MatrixXd Vertices;
 	Eigen::MatrixXi FaceIndex;

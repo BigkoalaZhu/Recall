@@ -14,6 +14,8 @@ public:
 	void randomPose();
 	void GenerateRecalls(const char * dir);
 
+	void GenerateSpecificRecall(std::vector<double> angles, std::vector<Eigen::Vector3d> directions, int view_index, const char * dir);
+
 	int groups;
 	char* filename;
 	Eigen::MatrixXd U,C,W,M;

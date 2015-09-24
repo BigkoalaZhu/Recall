@@ -170,16 +170,32 @@ void GenerateViewSpace::sweepTriangle(CvMat *depthMap, CvMat *labelMap, int labe
 
 				if(label != labelMap ->data.fl[y*labelMap->width+x] && labelMap ->data.fl[y*labelMap->width+x] >= 0)
 				{
+					if (existedEdge(label,labelMap->data.fl[y*labelMap->width+x]))
+						continue;
 					layout.insert(std::pair<int,int>(label, labelMap->data.fl[y*labelMap->width+x]));
 					labelMap ->data.fl[y*labelMap->width+x] = label;
 				}
 			}
 			else if (label != labelMap ->data.fl[y*labelMap->width+x] && labelMap ->data.fl[y*labelMap->width+x] >= 0)
 			{
+				if (existedEdge(label,labelMap->data.fl[y*labelMap->width+x]))
+						continue;
 				layout.insert(std::pair<int,int>(labelMap->data.fl[y*labelMap->width+x], label));
 			}
 		}
 	}
+}
+
+bool GenerateViewSpace::existedEdge(int p1, int p2)
+{
+	for (int i = 0; i < connected_edges.size(); i++)
+	{
+		if (connected_edges[i].first == p1 && connected_edges[i].second == p2)
+			return true;
+		if (connected_edges[i].first == p2 && connected_edges[i].second == p1)
+			return true;
+	}
+	return false;
 }
 
 void GenerateViewSpace::Generate(char* dir)
@@ -196,7 +212,7 @@ void GenerateViewSpace::Generate(char* dir)
 		connected_edges.push_back(std::pair<int,int>(y,x));
 	}
 	ifs.close();
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for (int i = 0; i < camera_num; i++)
 	{
 		Eigen::MatrixXd tmp = Eigen::MatrixXd::Zero(Vertices.rows(), Vertices.cols());
@@ -272,7 +288,7 @@ void GenerateViewSpace::Generate(char* dir)
 		cvSaveImage(filename, image);
 
 		///////////////////////////////////////////////
-		QString sFilePath = QString::fromUtf8(idscname);
+/*		QString sFilePath = QString::fromUtf8(idscname);
 		QFile file(sFilePath);  
 
 		if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {    
@@ -282,7 +298,7 @@ void GenerateViewSpace::Generate(char* dir)
 		cv::Mat mat_c = cv::cvarrToMat(image);
 		cvtColor(mat_c, mat_c, CV_BGR2GRAY);
 		cv::threshold(mat_c,mat_c,5,255,THRESH_BINARY);
-		imwrite("test.jpg",mat_c);
+//		imwrite("test.jpg",mat_c);
 
 		int pt_num = 300;
 		double *descriptor = new double[pt_num*64];
@@ -298,7 +314,7 @@ void GenerateViewSpace::Generate(char* dir)
 			out << endl;
 		}
 //		out.flush();    
-		file.close();
+		file.close();*/
 		///////////////////////////////////////////////
 
 		DrawParts(result, partsname);
@@ -398,7 +414,7 @@ void GenerateViewSpace::GenerateSingleRecall(char* dir, int index)
 	cvSaveImage(filename, image);
 
 	///////////////////////////////////////////////
-	QString sFilePath = QString::fromUtf8(idscname);
+/*	QString sFilePath = QString::fromUtf8(idscname);
 	QFile file(sFilePath);  
 
 	if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {    
@@ -422,9 +438,8 @@ void GenerateViewSpace::GenerateSingleRecall(char* dir, int index)
 			out << descriptor[i*64 + j] << " ";
 		}
 		out << endl;
-	}
-	//		out.flush();    
-	file.close();
+	}   
+	file.close();*/
 	///////////////////////////////////////////////
 
 	DrawParts(result, partsname);
@@ -436,8 +451,8 @@ void GenerateViewSpace::GenerateSingleRecall(char* dir, int index)
 
 void GenerateViewSpace::DrawParts(Eigen::MatrixXd position, char * path)
 {
-	std::vector<Mat> parts;
-	parts.resize(color_cv.size());
+	Mat *parts = new Mat[color_cv.size()];
+	int parts_num = color_cv.size();
 
 	QString sFilePath = QString::fromUtf8(path);
 	sFilePath += "art.txt";
@@ -450,7 +465,7 @@ void GenerateViewSpace::DrawParts(Eigen::MatrixXd position, char * path)
 
 	int descriptor_length = 30;
 
-	for (int i = 0; i < parts.size(); i++)
+	for (int i = 0; i < parts_num; i++)
 		parts[i] = Mat(Width, Width, CV_8UC1, Scalar(0));
 
 	for (int j = 0; j < FaceIndex.rows(); j++)
@@ -467,7 +482,7 @@ void GenerateViewSpace::DrawParts(Eigen::MatrixXd position, char * path)
 		fillPoly(parts[Labels(j)],ppt,arr,1,Scalar(255));
 	}
 
-	for (int i = 0; i < parts.size(); i++)
+	for (int i = 0; i < parts_num; i++)
 	{
 		QString str = QString::fromUtf8(path);
 		str += QString::number(i);
@@ -512,20 +527,15 @@ void GenerateViewSpace::DrawParts(Eigen::MatrixXd position, char * path)
 		}
 
 		str += ".png";
-//		imwrite(str.toStdString().c_str(), parts[i]);
 
 		out << endl << "Descriptor";
 		double *descriptor = new double[descriptor_length];
 		FourierDescriptor::calculate(parts[i], descriptor, descriptor_length);
-//		IDSC_descriptor idsc;
-//		idsc.getShapeContext(descriptor, parts[i], descriptor_length);
 		for (int j = 0; j < descriptor_length; j++)
 			out << " " << descriptor[j];
 		out << endl << endl;
 	}
-	parts.clear();
 
-	out.flush();    
 	file.close();
 }
 

@@ -44,5 +44,6 @@ private:
 
 	void loadCameras();
 	void sweepTriangle(CvMat *depthMap, CvMat *labelMap, int label, Eigen::Vector3d *point, Eigen::Vector3i color, IplImage* I);
+	bool existedEdge(int p1, int p2);
 };
 
